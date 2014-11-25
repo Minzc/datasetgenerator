@@ -1,47 +1,24 @@
-HFILES = glob.h choose.h gen.h
+HFILES1 = glob.h dist.h
+HFILES2 = gen.h
 
-CFILES =  gen.c main.c command.c util.c
+CFILES1 =  ran1.C expdev.C gammln.C gasdev.C poidev.C dist.C
+CFILES2 =  gen.C main.C command.C
 
-OBJECTS = gen.o main.o command.o util.o
+OBJECTS1 = ran1.o expdev.o gammln.o gasdev.o poidev.o dist.o
+OBJECTS2 = gen.o main.o command.o
 
-LIBS = -lm
+LIBES = -lm
+CC = g++
+CFLAGS = -O
 
-CC = g++-4.9
+gen:	$(OBJECTS1) $(OBJECTS2)
+	$(CC) $(CFLAGS) $(OBJECTS1) $(OBJECTS2) $(LIBES) -o gen
 
-#PROFILE=-pg
-#GDB=-ggdb3
-#DEBUG=-DDEBUG
-ifndef DEBUG
-	OPT=-Ofast -pipe -march=native -mtune=native #-m64   
-endif
-
-# For some reasons, -static does not work on Mac OS X (MacPorts g++ 4.9) (FIXME)
-UNAME := $(shell uname)
-STATIC=-static
-ifeq ($(UNAME), Darwin)
-STATIC=-static-libgcc -static-libstdc++
-endif
-
-WARNS=-Wextra -Wall -Wshadow -Wstrict-aliasing=1 -Werror -pedantic-errors
-
-CFLAGS=-ansi -std=c++11 -fabi-version=6 $(WARNS) $(OPT) $(STATIC) $(GDB) $(DEBUG) $(PROFILE)
-
-EXEC = gen 
-
-.PHONY: all default clean mrproper
-
-all: default
-
-default: $(EXEC)
-
-gen:	$(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) $(LIBS) -fwhole-program -o gen
-
-mrproper:
-	-/bin/rm -f $(OBJECTS) $(EXEC)
+test:	$(OBJECTS1) test.o
+	$(CC) $(CFLAGS) $(OBJECTS1) test.o $(LIBES) -o test
 
 clean:
-	-/bin/rm -f $(OBJECTS) 
+	/bin/rm $(OBJECTS1) $(OBJECTS2)
 
-$(OBJECTS): $(HFILES)
-
+$(OBJECTS1): $(HFILES1)
+$(OBJECTS2): $(HFILES1) $(HFILES2)
